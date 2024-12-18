@@ -30,20 +30,16 @@ function update_script() {
         exit
     fi
     msg_info "Updating ${APP} LXC"
-    
-    # Running apt-get update and upgrade without redirection to see errors
-    sudo apt-get update   # Show output to debug errors
+    sudo apt-get update  # Removed redirection to see errors
     if [ $? -ne 0 ]; then
-        msg_error "Failed to update repositories!"
+        msg_error "Failed to update package repositories!"
         exit 1
     fi
-    
-    sudo apt-get -y upgrade   # Show output to debug errors
+    sudo apt-get -y upgrade  # Removed redirection to see errors
     if [ $? -ne 0 ]; then
         msg_error "Failed to upgrade packages!"
         exit 1
     fi
-    
     msg_ok "Updated Successfully"
     exit
 }
@@ -51,17 +47,10 @@ function update_script() {
 function install_azure_function_tools() {
     msg_info "Installing Azure Functions Core Tools"
     
-    # Fetch and add Microsoft's GPG key
-    curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    # Fetch and add Microsoft's GPG key to trusted keyring
+    curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft-archive-keyring.gpg
     if [ $? -ne 0 ]; then
         msg_error "Failed to fetch and add Microsoft's GPG key!"
-        exit 1
-    fi
-
-    # Move the GPG key to trusted location
-    sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-    if [ $? -ne 0 ]; then
-        msg_error "Failed to move Microsoft's GPG key!"
         exit 1
     fi
 
@@ -72,19 +61,19 @@ function install_azure_function_tools() {
         exit 1
     fi
     
-    # Run apt-get update and install Azure Functions Core Tools
-    sudo apt-get update   # Show output to debug errors
+    # Update package list and install Azure Functions Core Tools
+    sudo apt-get update  # Show output to debug errors
     if [ $? -ne 0 ]; then
         msg_error "Failed to update repositories after adding Azure CLI!"
         exit 1
     fi
-    
-    sudo apt-get install -y azure-functions-core-tools-4   # Show output to debug errors
+
+    sudo apt-get install -y azure-functions-core-tools-4  # Show output to debug errors
     if [ $? -ne 0 ]; then
         msg_error "Failed to install Azure Functions Core Tools!"
         exit 1
     fi
-    
+
     msg_ok "Azure Functions Core Tools Installed"
 }
 
